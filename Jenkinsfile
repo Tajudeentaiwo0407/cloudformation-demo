@@ -12,11 +12,11 @@ pipeline{
     }
 
     stages{
-        checkout code
+        //  Checkout code
         stage("checkout code"){
             steps{
                 script{
-                    if ( params.environment == 'live' ){
+                    if( params.environment == 'live' ){
                     		checkout([$class: 'GitSCM', 
 				      branches: [[name: '*/main']], 
 				      extensions: [], 
@@ -31,7 +31,7 @@ pipeline{
             }
         }
 
-        //Validate cloudformation template
+        //  Validate cloudformation template
         stage("CLOUDFORMATION VALIDATION"){
             steps{
                 sh 'aws cloudformation validate-template --template-body file://iam.yml'
