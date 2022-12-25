@@ -1,8 +1,8 @@
 pipeline{
     agent any
     environment{
-        AWS_SECRET_ACCESS_KEY = credentials('access_id')
-        AWS_ACCESS_KEY_ID = credentials('secret_key')
+        AWS_ACCESS_KEY_ID = credentials('access_id')
+        AWS_SECRET_ACCESS_KEY = credentials('secret_key')
         BRANCH = 'main'
     }
     parameters{
