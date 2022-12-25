@@ -1,0 +1,25 @@
+Description: Deploys VPC Flow Logs
+
+Parameters:
+  iamStack:
+    Type: String
+    Default: iam
+  vpcStack:
+    Type: String
+    Default: prod-vpc
+
+Resources:
+  logGroup0:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '${AWS::StackName}-lg'
+      RetentionInDays: 14
+
+  flowLog:
+    Type: AWS::EC2::FlowLog
+    Properties:
+      DeliverLogsPermissionArn: {'Fn::ImportValue': !Sub '${iamstack}-flowlogs-role'}
+      LogGroupName: !Ref logGroup0
+      ResourceId: {'Fn::ImportValue': !Sub '${vpcStack}'}
+      ResourceType: VPC
+      TrafficType: ALL

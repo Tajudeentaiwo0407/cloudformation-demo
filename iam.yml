@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploy IAM Resources-FLOWLOGPOLICY
+Resources:
+  flowLogsRole:
+    Type: AWS::IAM::Role
+    DependsOn: flowLogsPolicy 
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: 
+              Service:  vpc-flow-logs.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref flowLogsPolicy 
+  
+  flowLogsPolicy:
+      Type: AWS::IAM::ManagedPolicy
+      Properties:
+        PolicyDocument:
+          Version: 2012-10-17 
+          Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+                - logs:DescribeLogGroups
+                - logs:DescribeLogStreams
+              Resource: '*'
+
+Outputs:
+  flowLogsRole:
+    Value: !GetAtt flowLogsRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-flowLogs-role'

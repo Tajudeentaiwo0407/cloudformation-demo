@@ -1,0 +1,343 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A general template for Multi AZ VPCs
+
+Parameters:
+  environment:
+    Type: String
+    Default: development
+    AllowedValues:
+      - production
+      - development
+  owner:
+    Type: String
+    Default: Tajudeen Taiwo
+  ownerEmail:
+    Type: String
+    Default: tajudeentaiwo@tajudeentaiwo.com
+  vpcCIDR:
+    Type: String
+    Default: 10.10.0.0/16
+  publicSubnet0CIDR:
+    Type: String
+    Default: 10.10.0.0/20
+  publicSubnet1CIDR:
+    Type: String
+    Default: 10.10.16.0/20
+  privateSubnet0CIDR:
+    Type: String
+    Default: 10.10.32.0/20
+  privateSubnet1CIDR:
+    Type: String
+    Default: 10.10.48.0/20
+  
+Resources:
+
+  vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref vpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: environment
+          Value: !Ref environment
+        - Key: owner
+          Value: !Ref owner
+        - Key: ownerEmail
+          Value: !Ref ownerEmail
+        - Key: Name
+          Value: !Join ['-', [!Sub '${AWS::StackName}', !Ref 'AWS::Region']]
+    
+  igw:
+    Type: AWS::EC2::InternetGateway
+    DependsOn: vpc
+    Properties:
+      Tags:
+        - Key: environment
+          Value: !Ref environment
+        - Key: owner
+          Value: !Ref owner  
+        - Key: ownerEmail
+          Value: !Ref ownerEmail
+        - Key: Name
+          Value: !Join ['-', [!Sub '${AWS::StackName}', !Ref 'AWS::Region']]
+
+  igwAttach:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    DependsOn:
+      - vpc
+      - igw
+    Properties:
+      InternetGatewayId: !Ref igw
+      VpcId: !Ref vpc
+
+  natEIP0:
+    Type: AWS::EC2::EIP
+    DependsOn: igw
+    Properties:
+      Domain: vpc        
+
+  natEIP1:
+    Type: AWS::EC2::EIP
+    DependsOn: igw
+    Properties:
+      Domain: vpc
+
+  natGateway0:
+    Type: AWS::EC2::NatGateway   
+    DependsOn:
+      - natEIP0
+      - publicSubnet0
+    Properties:
+      AllocationId: !GetAtt natEIP0.AllocationId
+      SubnetId: !Ref publicSubnet0
+      Tags:
+      - Key: environment
+        Value: !Ref environment
+      - Key: owner
+        Value: !Ref owner
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', ngw, !Ref 'AWS::Region']]
+     
+  natGateway1:
+    Type: AWS::EC2::NatGateway   
+    DependsOn:
+      - natEIP1
+      - publicSubnet1
+    Properties:
+      AllocationId: !GetAtt natEIP1.AllocationId
+      SubnetId: !Ref publicSubnet1
+      Tags:
+      - Key: environment
+        Value: !Ref environment
+      - Key: owner
+        Value: !Ref owner
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', ngw, !Ref 'AWS::Region']]
+
+  publicSubnet0:
+    Type: AWS::EC2::Subnet
+    DependsOn: vpc
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref publicSubnet0CIDR
+      MapPublicIpOnLaunch: false
+      VpcId: !Ref vpc      
+      Tags:
+      - Key: owner
+        Value: !Ref owner
+      - Key: environment
+        Value: !Ref environment
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', public, !Select [0, !GetAZs ""]]]
+
+  publicSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: vpc
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: !Ref publicSubnet1CIDR
+      MapPublicIpOnLaunch: false
+      VpcId: !Ref vpc      
+      Tags:
+      - Key: owner
+        Value: !Ref owner
+      - Key: environment
+        Value: !Ref environment
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', public, !Select [1, !GetAZs ""]]]
+
+  privateSubnet0:
+    Type: AWS::EC2::Subnet
+    DependsOn: vpc
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref privateSubnet0CIDR
+      MapPublicIpOnLaunch: false
+      VpcId: !Ref vpc      
+      Tags:
+      - Key: owner
+        Value: !Ref owner
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: environment
+        Value: !Ref environment
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', private, !Select [0, !GetAZs ""]]]
+
+  privateSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: vpc
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: !Ref privateSubnet1CIDR
+      MapPublicIpOnLaunch: false
+      VpcId: !Ref vpc      
+      Tags:
+      - Key: owner
+        Value: !Ref owner
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: environment
+        Value: !Ref environment
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', private, !Select [1, !GetAZs ""]]]  
+
+  routeTablePublic0:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref vpc
+      Tags:
+      - Key: owner
+        Value: !Ref owner
+      - Key: environment
+        Value: !Ref environment
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', public, route-table, !Select [0, !GetAZs ""]]]
+
+  routeTablePublic1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref vpc
+      Tags:
+      - Key: owner
+        Value: !Ref owner
+      - Key: environment
+        Value: !Ref environment
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', public, route-table, !Select [1, !GetAZs ""]]]
+  
+  routeTablePrivate0:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref vpc
+      Tags:
+      - Key: owner
+        Value: !Ref owner
+      - Key: environment
+        Value: !Ref environment
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', private, route-table, !Select [0, !GetAZs ""]]]
+
+  routeTablePrivate1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref vpc
+      Tags:
+      - Key: owner
+        Value: !Ref owner
+      - Key: environment
+        Value: !Ref environment
+      - Key: ownerEmail
+        Value: !Ref ownerEmail
+      - Key: Name
+        Value: !Join ['-', [!Sub '${AWS::StackName}', private, route-table, !Select [1, !GetAZs ""]]]
+
+  publicRoute0:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - publicSubnet0
+      - igwAttach
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref igw
+      RouteTableId: !Ref routeTablePublic0
+
+  publicRoute1:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - publicSubnet1
+      - igwAttach
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref igw
+      RouteTableId: !Ref routeTablePublic1
+
+  privateRoute0:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - privateSubnet0
+      - natGateway0
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref natGateway0
+      RouteTableId: !Ref routeTablePrivate0
+
+  privateRoute1:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - privateSubnet1
+      - natGateway1
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref natGateway1
+      RouteTableId: !Ref routeTablePrivate1
+
+  publicRoute0Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref routeTablePublic0
+      SubnetId: !Ref publicSubnet0
+
+  publicRoute1Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref routeTablePublic1
+      SubnetId: !Ref publicSubnet1
+
+  privateRoute0Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref routeTablePrivate0
+      SubnetId: !Ref privateSubnet0
+
+  privateRoute0Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref routeTablePrivate0
+      SubnetId: !Ref privateSubnet1
+
+Outputs:
+  vpc:
+    Value: !Ref vpc
+    Export:
+      Name: !Sub '${AWS::StackName}'
+
+  vpcCIDR:
+    Value: !GetAtt vpc.CidrBlock
+    Export:
+      Name: !Sub '${AWS::StackName}-cidr'
+
+  publicSubnet0:
+    Value: !Ref publicSubnet0
+    Export:
+      Name: !Sub '${AWS::StackName}-publicSubnet0'
+    
+  publicSubnet1:
+    Value: !Ref publicSubnet1
+    Export:
+      Name: !Sub '${AWS::StackName}-publicSubnet1'
+  
+  privateSubnet0:
+    Value: !Ref privateSubnet0
+    Export:
+      Name: !Sub '${AWS::StackName}-privateSubnet0'
+  
+  privateSubnet1:
+    Value: !Ref privateSubnet1
+    Export:
+      Name: !Sub '${AWS::StackName}-privateSubnet1'
