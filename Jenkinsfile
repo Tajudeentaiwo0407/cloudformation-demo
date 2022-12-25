@@ -35,18 +35,20 @@ pipeline{
 
         //create cloudformation stack
         stage("CLOUDFORMATION STACK CREATION"){
-            steps{
-		    if( params.Action == 'apply' ){
+        	steps{
+			script{
+		    		if( params.Action == 'apply' ){
                         	echo "You are creating a new stack"
 			    	sh 'aws cloudformation create-stack --stack-name myteststack --template-body file://iam.yml --capabilities CAPABILITY_NAMED_IAM --enable-termination-protection'
                         	// sh 'aws cloudformation update-termination-protection --no-enable-termination-protection --stack-name myteststack'
 				// sh 'aws clouformation delete-stack --stack-name myteststack'
-                    }
-                    else{
-                        	echo "The error has been generated and mailed to you."
-                    }
+                    		}
+                    		else{
+                        		echo "The error has been generated and mailed to you."
+                    		}
                // sh 'aws cloudformation create-stack --stack-name myteststack --template-body file://iam.yml --capabilities CAPABILITY_NAMED_IAM --enable-termination-protection'
-            }
+		    	}	
+	    	}
         }
 
         //Perform action against cloudformation stack
