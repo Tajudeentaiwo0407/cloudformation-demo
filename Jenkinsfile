@@ -27,21 +27,21 @@ pipeline{
 
         //validate cloudformation template
         stage("CLOUDFORMATION VALIDATION"){
-            step{
+            steps{
                 sh 'aws cloudformation validate-template --template-body file://iam.yml'
             }
         }
 
         //create cloudformation stack
         stage("CLOUDFORMATION STACK CREATION"){
-            step{
+            steps{
                 sh 'aws cloudformation create-stack --stack-name myteststack --template-body file://iam.yml --capabilities CAPABILITY_NAMED_IAM --enable-termination-protection'
             }
         }
 
         //Perform action against cloudformation stack
         stage("CLOUDFORMATION STACK DELETION"){
-            step{
+            steps{
                 script{
                     if($params.Action == apply){
                         echo "You are applying these commands"
