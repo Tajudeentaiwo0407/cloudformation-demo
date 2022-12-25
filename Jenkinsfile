@@ -23,12 +23,12 @@ pipeline{
 				      		userRemoteConfigs: [[
 					      		url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]
 					])
-		    	}
+		    		}
                     		else{
                         		echo "Failed to checkout"
-                    }
-                }
-            }
+                    		}
+                	}
+            	}
         }
 
         //  Validate cloudformation template
@@ -46,9 +46,6 @@ pipeline{
                         	echo "You are creating a new stack"
 			    	sh 'aws cloudformation create-stack --stack-name myteststack --template-body file://iam.yml --capabilities CAPABILITY_NAMED_IAM --enable-termination-protection'
                     		}
-//                      		else{
-//                          			echo "The error has been generated and mailed to you."
-//                     		}
 		    	}	
 	    	}
         }
@@ -56,15 +53,15 @@ pipeline{
         //Perform action against cloudformation stack
         stage("CLOUDFORMATION STACK DELETION"){
             steps{
-                script{
+            	script{
 			if( params.Action == 'delete' ){
                         	echo "You are applying the stack"
                         	sh 'aws cloudformation update-termination-protection --no-enable-termination-protection --stack-name myteststack'
 				sh 'aws cloudformation delete-stack --stack-name myteststack'
-                    }
+                    	}
                         else{
                         	echo "The error has been generated and mailed to you."
-                    }
+                    	}
                 }
             }
         }
