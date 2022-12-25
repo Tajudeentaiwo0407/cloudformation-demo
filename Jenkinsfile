@@ -14,18 +14,18 @@ pipeline{
     stages{
         //  Checkout code
         stage("checkout code"){
-            steps{
-                script{
-                    if( params.environment == 'live' ){
-                    		checkout([$class: 'GitSCM', 
-				      branches: [[name: '*/main']], 
-				      extensions: [], 
-				      userRemoteConfigs: [[
-					      url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]
-				])
-		    }
-                    else{
-                        echo "Failed to checkout"
+        	steps{
+                	script{
+                    		if( params.environment == 'live' ){
+                    			checkout([$class: 'GitSCM', 
+				      		branches: [[name: '*/main']], 
+				      		extensions: [], 
+				      		userRemoteConfigs: [[
+					      		url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]
+					])
+		    	}
+                    		else{
+                        		echo "Failed to checkout"
                     }
                 }
             }
@@ -38,7 +38,7 @@ pipeline{
             }
         }
 
-        //Create cloudformation stack
+        //  Create cloudformation stack
         stage("CLOUDFORMATION STACK CREATION"){
         	steps{
 			script{
@@ -47,7 +47,7 @@ pipeline{
 			    	sh 'aws cloudformation create-stack --stack-name myteststack --template-body file://iam.yml --capabilities CAPABILITY_NAMED_IAM --enable-termination-protection'
                     		}
 //                      		else{
-//                          		echo "The error has been generated and mailed to you."
+//                          			echo "The error has been generated and mailed to you."
 //                     		}
 		    	}	
 	    	}
