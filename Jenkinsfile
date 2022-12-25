@@ -12,19 +12,19 @@ pipeline{
     }
 
     stages{
-        // checkout code
-//         stage("checkout code"){
-//             steps{
-//                 script{
-//                     if (${params.environment} == live){
-//                     	sh "checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]])"
-// 		    }
-//                     else{
-//                         echo "Failed to checkout"
-//                     }
-//                 }
-//             }
-//         }
+        checkout code
+        stage("checkout code"){
+            steps{
+                script{
+                    if (${params.environment} == live){
+                    	sh "checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]])"
+		    }
+                    else{
+                        echo "Failed to checkout"
+                    }
+                }
+            }
+        }
 
         //validate cloudformation template
         stage("CLOUDFORMATION VALIDATION"){
@@ -44,7 +44,7 @@ pipeline{
         stage("CLOUDFORMATION STACK DELETION"){
             steps{
                 script{
-                    if($params.Action == apply){
+			if(${params.Action == destroy}){
                         echo "You are applying these commands"
                         sh 'aws cloudformation update-termination-protection --no-enable-termination-protection --stack-name myteststack'
 			sh 'aws clouformation delete-stack --stack-name myteststack'
