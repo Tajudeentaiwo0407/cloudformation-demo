@@ -58,7 +58,7 @@ pipeline{
 			if( params.Action == 'destroy' ){
                         	echo "You are applying these commands"
                         	sh 'aws cloudformation update-termination-protection --no-enable-termination-protection --stack-name myteststack'
-				sh 'aws clouformation delete-stack --stack-name myteststack'
+				sh 'aws cloudformation delete-stack --stack-name myteststack'
                     }
                         else{
                         	echo "The error has been generated and mailed to you."
