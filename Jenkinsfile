@@ -17,7 +17,13 @@ pipeline{
             steps{
                 script{
                     if ( params.environment == 'live' ){
-                    	sh "checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]])"
+                    	sh "
+			    checkout([$class: 'GitSCM', 
+				      branches: [[name: '*/main']], 
+				      extensions: [], 
+				      userRemoteConfigs: [[
+					      url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]
+				     ])"
 		    }
                     else{
                         echo "Failed to checkout"
