@@ -44,7 +44,7 @@ pipeline{
         stage("CLOUDFORMATION STACK DELETION"){
             steps{
                 script{
-			if(${params.Action} == destroy){
+			if( ${params.Action} == destroy ){
                         echo "You are applying these commands"
                         sh 'aws cloudformation update-termination-protection --no-enable-termination-protection --stack-name myteststack'
 			sh 'aws clouformation delete-stack --stack-name myteststack'
