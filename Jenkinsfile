@@ -3,6 +3,7 @@ pipeline{
     environment{
         AWS_ACCESS_KEY_ID = credentials('access_id')
         AWS_SECRET_ACCESS_KEY = credentials('secret_key')
+	AWS_DEFAULT_REGION = credentials('default_region')
         BRANCH = 'main'
     }
     parameters{
