@@ -7,7 +7,7 @@ pipeline{
         BRANCH = 'main'
     }
     parameters{
-        choice(name:"Action" , choices: ['apply','destroy'])
+        choice(name:"Action" , choices: ['create','delete'])
         choice(name:'environment', choices: ['live','dev'])
     }
 
@@ -26,27 +26,24 @@ pipeline{
 //             }
 //         }
 
-        //validate cloudformation template
+        //Validate cloudformation template
         stage("CLOUDFORMATION VALIDATION"){
             steps{
                 sh 'aws cloudformation validate-template --template-body file://iam.yml'
             }
         }
 
-        //create cloudformation stack
+        //Create cloudformation stack
         stage("CLOUDFORMATION STACK CREATION"){
         	steps{
 			script{
-		    		if( params.Action == 'apply' ){
+		    		if( params.Action == 'create' ){
                         	echo "You are creating a new stack"
 			    	sh 'aws cloudformation create-stack --stack-name myteststack --template-body file://iam.yml --capabilities CAPABILITY_NAMED_IAM --enable-termination-protection'
-                        	// sh 'aws cloudformation update-termination-protection --no-enable-termination-protection --stack-name myteststack'
-				// sh 'aws clouformation delete-stack --stack-name myteststack'
                     		}
-                    		else{
-                        		echo "The error has been generated and mailed to you."
-                    		}
-               // sh 'aws cloudformation create-stack --stack-name myteststack --template-body file://iam.yml --capabilities CAPABILITY_NAMED_IAM --enable-termination-protection'
+//                      		else{
+//                          		echo "The error has been generated and mailed to you."
+//                     		}
 		    	}	
 	    	}
         }
@@ -55,8 +52,8 @@ pipeline{
         stage("CLOUDFORMATION STACK DELETION"){
             steps{
                 script{
-			if( params.Action == 'destroy' ){
-                        	echo "You are applying these commands"
+			if( params.Action == 'delete' ){
+                        	echo "You are applying the stack"
                         	sh 'aws cloudformation update-termination-protection --no-enable-termination-protection --stack-name myteststack'
 				sh 'aws cloudformation delete-stack --stack-name myteststack'
                     }
