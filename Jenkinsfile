@@ -1,10 +1,10 @@
 pipeline{
     agent any
-//     environment{
-//         AWS_SECRET_ACCESS_KEY = credentials('secret_key')
-//         AWS_ACCESS_KEY_ID = credentials('access_id')
-//         BRANCH = 'main'
-//   }
+    environment{
+        AWS_SECRET_ACCESS_KEY = credentials('secret_key')
+        AWS_ACCESS_KEY_ID = credentials('access_id')
+        BRANCH = 'main'
+    }
     parameters{
         choice(name:"Action" , choices: ['apply','destroy'])
         choice(name:'environment', choices: ['live','dev'])
