@@ -6,7 +6,7 @@ pipeline{
         BRANCH = main
     }
     parameters{
-        choices(name:"Action" , choices: ['apply' 'destroy'])
+        choices(name:"Action" , choices: ['apply','destroy'])
         choices(name:'environment', choices: ['live','dev'])
     }
 
@@ -16,7 +16,7 @@ pipeline{
             step{
                 script{
                     if (${params.environment} == live){
-                        sh"checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]])"
+                        sh"checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[ url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]])"
                     }
                     else{
                         echo "Failed to checkout"
@@ -28,7 +28,7 @@ pipeline{
         //validate cloudformation template
         stage("CLOUDFORMATION VALIDATION"){
             step{
-                sh 'aws cloudformation validate-template --template-body file://./iam.yml'
+                sh 'aws cloudformation validate-template --template-body file://iam.yml'
             }
         }
 
