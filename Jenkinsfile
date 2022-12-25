@@ -16,7 +16,7 @@ pipeline{
             step{
                 script{
                     if (${params.environment} == live){
-                        sh"checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/Osiephri/Dev_che1']]])"
+                        sh"checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/Tajudeentaiwo0407/cloudformation-demo']]])"
                     }
                     else{
                         echo "Failed to checkout"
@@ -46,7 +46,7 @@ pipeline{
                     if($params.Action == apply){
                         echo "You are applying these commands"
                         sh 'aws cloudformation update-termination-protection --no-enable-termination-protection --stack-name myteststack'
-				sh 'aws clouformation delete-stack --stack-name myteststack'
+			sh 'aws clouformation delete-stack --stack-name myteststack'
                     }
                     else{
                         echo "The error has been generated and mailed to you."
