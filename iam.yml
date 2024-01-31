@@ -14,7 +14,7 @@ Resources:
             Action:
               - sts:AssumeRole
       ManagedPolicyArns:
-        - !Ref flowLogsPolicy 
+          - !Ref flowLogsPolicy 
   
   flowLogsPolicy:
       Type: AWS::IAM::ManagedPolicy
